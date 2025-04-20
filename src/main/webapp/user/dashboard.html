@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard - City Waste Management</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <div class="nav-container">
+            <a href="dashboard.html" class="nav-brand">City Waste Management</a>
+            <div class="nav-links">
+                <a href="complaint-form.html" class="nav-link"><i class="fas fa-plus-circle"></i> Raise Complaint</a>
+                <a href="#" id="logoutBtn" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1 id="welcomeMessage">Welcome, User</h1>
+        
+        <!-- Success Message (Hidden by default) -->
+        <div id="successMessage" class="message success-message" style="display: none;">
+            <span id="successMessageText"></span>
+            <button class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+        </div>
+        
+        <!-- Error Message (Hidden by default) -->
+        <div id="errorMessage" class="message error-message" style="display: none;">
+            <span id="errorMessageText"></span>
+            <button class="close-btn" onclick="this.parentElement.style.display='none';">&times;</button>
+        </div>
+        
+        <!-- Statistics Cards -->
+        <div class="stats-container">
+            <div class="stat-card">
+                <h3>Total Complaints</h3>
+                <div class="stat-number" id="totalComplaints">0</div>
+                <div class="stat-label">Complaints Submitted</div>
+            </div>
+            
+            <div class="stat-card">
+                <h3>Pending</h3>
+                <div class="stat-number" id="pendingComplaints">0</div>
+                <div class="stat-label">Awaiting Action</div>
+            </div>
+            
+            <div class="stat-card">
+                <h3>In Progress</h3>
+                <div class="stat-number" id="inProgressComplaints">0</div>
+                <div class="stat-label">Being Addressed</div>
+            </div>
+            
+            <div class="stat-card">
+                <h3>Resolved</h3>
+                <div class="stat-number" id="resolvedComplaints">0</div>
+                <div class="stat-label">Completed</div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2><i class="fas fa-list-alt"></i> Your Complaints</h2>
+                <a href="complaint-form.html" class="btn secondary-btn">
+                    <i class="fas fa-plus-circle"></i> Raise New Complaint
+                </a>
+            </div>
+            
+            <div id="complaintsList">
+                <!-- Complaints will be loaded here dynamically -->
+                <div id="noComplaints" style="margin-top: 20px; text-align: center;">
+                    <i class="fas fa-inbox fa-3x" style="color: var(--medium-gray); margin-bottom: 15px;"></i>
+                    <p>You haven't raised any complaints yet.</p>
+                    <p style="font-size: 14px; color: #888;">Use the button above to submit a new complaint.</p>
+                </div>
+                
+                <table id="complaintsTable" class="table" style="display: none;">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                            <th>Created Date</th>
+                            <th>Resolved Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="complaintsTableBody">
+                        <!-- Complaint rows will be added here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <footer style="text-align: center; margin-top: 50px; padding: 20px; color: #777; font-size: 14px;">
+        <p>© 2023 City Waste Management System. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            
+            if (!currentUser) {
+                window.location.href = '../login.html';
+                return;
+            }
+            
+            // Check if user has user role
+            if (currentUser.role !== 'user') {
+                window.location.href = '../login.html';
+                return;
+            }
+            
+            // Set welcome message
+            document.getElementById('welcomeMessage').textContent = `Welcome, ${currentUser.name}`;
+            
+            // Check for success message from localStorage
+            if (localStorage.getItem('successMessage')) {
+                document.getElementById('successMessage').style.display = 'flex';
+                document.getElementById('successMessageText').textContent = localStorage.getItem('successMessage');
+                localStorage.removeItem('successMessage');
+            }
+            
+            // Load user's complaints
+            loadComplaints();
+            
+            // Set up logout button
+            document.getElementById('logoutBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                localStorage.removeItem('currentUser');
+                window.location.href = '../login.html?logout=true';
+            });
+        });
+        
+        // Function to load complaints
+        function loadComplaints() {
+            // In a real app, this would fetch data from a server
+            // For this HTML version, we'll use sample data stored in localStorage
+            
+            // Check if we have sample data, if not create it
+            if (!localStorage.getItem('sampleComplaints')) {
+                const sampleComplaints = [
+                    {
+                        id: 1,
+                        userId: 2,
+                        complaintType: 'NEW_DUSTBIN',
+                        description: 'Need a new dustbin at the corner of Main St and Park Ave.',
+                        status: 'PENDING',
+                        createdDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+                        resolvedDate: null
+                    },
+                    {
+                        id: 2,
+                        userId: 2,
+                        complaintType: 'DUSTBIN_OVERFLOW',
+                        description: 'The dustbin near Park Ave subway station is overflowing.',
+                        status: 'IN_PROGRESS',
+                        createdDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+                        resolvedDate: null
+                    },
+                    {
+                        id: 4,
+                        userId: 2,
+                        complaintType: 'DUSTBIN_OVERFLOW',
+                        description: 'Dustbin overflow at Market Street near the shopping mall.',
+                        status: 'RESOLVED',
+                        createdDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+                        resolvedDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString()
+                    }
+                ];
+                localStorage.setItem('sampleComplaints', JSON.stringify(sampleComplaints));
+            }
+            
+            // Get the complaints
+            const allComplaints = JSON.parse(localStorage.getItem('sampleComplaints'));
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userComplaints = allComplaints.filter(c => c.userId === 2);  // Using a hardcoded userId for sample user
+            
+            // Update statistics
+            document.getElementById('totalComplaints').textContent = userComplaints.length;
+            document.getElementById('pendingComplaints').textContent = userComplaints.filter(c => c.status === 'PENDING').length;
+            document.getElementById('inProgressComplaints').textContent = userComplaints.filter(c => c.status === 'IN_PROGRESS').length;
+            document.getElementById('resolvedComplaints').textContent = userComplaints.filter(c => c.status === 'RESOLVED').length;
+            
+            // Display complaints
+            if (userComplaints.length > 0) {
+                document.getElementById('noComplaints').style.display = 'none';
+                document.getElementById('complaintsTable').style.display = 'table';
+                
+                const tableBody = document.getElementById('complaintsTableBody');
+                tableBody.innerHTML = '';
+                
+                userComplaints.forEach(complaint => {
+                    const row = document.createElement('tr');
+                    
+                    // Format dates
+                    const createdDate = new Date(complaint.createdDate);
+                    const resolvedDate = complaint.resolvedDate ? new Date(complaint.resolvedDate) : null;
+                    const dateFormat = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
+                    
+                    // Create status tag based on status
+                    let statusTag = '';
+                    let statusIcon = '';
+                    if (complaint.status === 'PENDING') {
+                        statusTag = '<span class="status-tag status-pending">Pending</span>';
+                        statusIcon = '<i class="fas fa-clock"></i> ';
+                    } else if (complaint.status === 'IN_PROGRESS') {
+                        statusTag = '<span class="status-tag status-in-progress">In Progress</span>';
+                        statusIcon = '<i class="fas fa-cog fa-spin"></i> ';
+                    } else if (complaint.status === 'RESOLVED') {
+                        statusTag = '<span class="status-tag status-resolved">Resolved</span>';
+                        statusIcon = '<i class="fas fa-check-circle"></i> ';
+                    }
+                    
+                    // Get complaint type icon
+                    let typeIcon = '';
+                    if (complaint.complaintType === 'NEW_DUSTBIN') {
+                        typeIcon = '<i class="fas fa-trash"></i> ';
+                    } else if (complaint.complaintType === 'DUSTBIN_OVERFLOW') {
+                        typeIcon = '<i class="fas fa-trash-restore"></i> ';
+                    } else if (complaint.complaintType === 'DUSTBIN_DAMAGED') {
+                        typeIcon = '<i class="fas fa-trash-alt"></i> ';
+                    }
+                    
+                    // Add photo indicator if complaint has a photo
+                    const photoIndicator = complaint.photoData ? 
+                        '<i class="fas fa-camera" title="Photo attached" style="margin-left: 5px; color: var(--primary-color);"></i>' : '';
+                    
+                    row.innerHTML = `
+                        <td>#${complaint.id}</td>
+                        <td>${typeIcon}${complaint.complaintType.replace(/_/g, ' ')} ${photoIndicator}</td>
+                        <td>${complaint.description}</td>
+                        <td>${statusIcon}${statusTag}</td>
+                        <td><i class="far fa-calendar-alt"></i> ${createdDate.toLocaleString('en-US', dateFormat)}</td>
+                        <td>${resolvedDate ? '<i class="far fa-calendar-check"></i> ' + resolvedDate.toLocaleString('en-US', dateFormat) : '<span style="color: #888;">Not resolved yet</span>'}</td>
+                    `;
+                    
+                    tableBody.appendChild(row);
+                });
+            }
+        }
+    </script>
+</body>
+</html> 

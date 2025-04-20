@@ -1,0 +1,83 @@
+MYSQL SETUP GUIDE FOR WASTE MANAGEMENT SYSTEM
+=============================================
+
+This guide will help you set up the MySQL database and view the user table data.
+
+STEP 1: INSTALL MYSQL
+--------------------
+1. Download MySQL: https://dev.mysql.com/downloads/installer/
+2. Run the installer and follow the instructions
+3. Remember the root password you set during installation!
+
+STEP 2: RUN THE SQL SCRIPT
+-------------------------
+1. Open Command Prompt/PowerShell with administrative privileges
+2. Navigate to your MySQL bin directory (typically C:\Program Files\MySQL\MySQL Server 8.0\bin)
+3. Log in to MySQL:
+   mysql -u root -p
+   (Enter your root password when prompted)
+
+4. Once logged in, run the database script using one of these methods:
+
+   Option 1: Copy and paste the entire script content directly into the MySQL terminal
+   
+   Option 2: Run the script from file:
+   source B:/Weaste_management/WasteManagementSystem/database.sql
+   (Adjust the path according to your actual file location)
+
+STEP 3: VIEW USER TABLE DATA
+---------------------------
+After running the script, you can view the users table with these commands:
+
+1. Make sure you're using the correct database:
+   USE waste_management;
+
+2. View all users:
+   SELECT * FROM users;
+
+3. View specific user details:
+   SELECT id, username, name, address, phone_number, email, role FROM users;
+
+4. Find a specific user by username:
+   SELECT * FROM users WHERE username = 'yourUsername';
+
+STEP 4: VIEW COMPLAINTS TABLE DATA
+--------------------------------
+You can also check the complaints data:
+
+1. View all complaints:
+   SELECT * FROM complaints;
+
+2. View complaints with user details:
+   SELECT c.id, c.complaint_type, c.description, c.status, c.created_date, 
+          u.name, u.phone_number
+   FROM complaints c
+   JOIN users u ON c.user_id = u.id;
+
+SAMPLE QUERIES
+-------------
+- Find all complaints made by a specific user:
+  SELECT * FROM complaints WHERE user_id = (SELECT id FROM users WHERE username = 'user1');
+
+- Count the number of complaints by status:
+  SELECT status, COUNT(*) as count FROM complaints GROUP BY status;
+
+- Find the most recent complaints:
+  SELECT * FROM complaints ORDER BY created_date DESC LIMIT 5;
+
+- Find all users who have made complaints:
+  SELECT DISTINCT u.* FROM users u JOIN complaints c ON u.id = c.user_id;
+
+NOTES
+-----
+- The default admin credentials are:
+  Username: admin
+  Password: admin123
+
+- Sample user credentials:
+  Username: user1
+  Password: user123
+
+- If you want to add a new user through SQL:
+  INSERT INTO users (username, password, name, address, phone_number, email, role)
+  VALUES ('newuser', 'password123', 'New User', 'Your Address', '1234567890', 'email@example.com', 'user'); 
