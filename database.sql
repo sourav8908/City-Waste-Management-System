@@ -38,9 +38,9 @@ VALUES ('admin', 'admin123', 'Admin User', 'City Municipal Office', '9876543210'
 -- Insert sample users
 INSERT INTO users (username, password, name, address, phone_number, email, role)
 VALUES 
-('user1', 'user123', 'John Doe', '123 Main St, Apt 4B', '1234567890', 'john@example.com', 'user'),
-('user2', 'user123', 'Jane Smith', '456 Park Ave', '2345678901', 'jane@example.com', 'user'),
-('user3', 'user123', 'Robert Johnson', '789 Broadway St', '3456789012', 'robert@example.com', 'user');
+('user1', 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f', 'John Doe', '123 Main St, Apt 4B', '1234567890', 'john@example.com', 'user'),
+('user2', 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f', 'Jane Smith', '456 Park Ave', '2345678901', 'jane@example.com', 'user'),
+('user3', 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f', 'Robert Johnson', '789 Broadway St', '3456789012', 'robert@example.com', 'user');
 
 -- Insert sample complaints
 INSERT INTO complaints (user_id, complaint_type, description, status, created_date)

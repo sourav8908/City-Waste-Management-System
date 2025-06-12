@@ -131,7 +131,14 @@
                 },
                 body: JSON.stringify(userData)
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        throw new Error(data.message || 'Registration failed');
+                    });
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.success) {
                     // Registration successful
@@ -150,7 +157,7 @@
             .catch(error => {
                 console.error('Error during registration:', error);
                 document.getElementById('errorMessage').style.display = 'flex';
-                document.getElementById('errorMessageText').textContent = 'Registration failed due to network error. Please try again.';
+                document.getElementById('errorMessageText').textContent = error.message || 'Registration failed due to network error. Please try again.';
                 
                 // Reset button
                 document.querySelector('button[type="submit"]').innerHTML = '<i class="fas fa-user-plus"></i> Register';

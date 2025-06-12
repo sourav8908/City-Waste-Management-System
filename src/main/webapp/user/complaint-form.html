@@ -244,7 +244,7 @@
                     // Create new complaint
                     const newComplaint = {
                         id: complaints.length > 0 ? Math.max(...complaints.map(c => c.id)) + 1 : 1,
-                        userId: 2, // Using a hardcoded userId for sample user
+                        userId: currentUser.id, // Use the logged-in user's id
                         complaintType: complaintType,
                         description: description,
                         address: fullAddress,

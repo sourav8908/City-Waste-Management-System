@@ -179,7 +179,7 @@
             // Get the complaints
             const allComplaints = JSON.parse(localStorage.getItem('sampleComplaints'));
             const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-            const userComplaints = allComplaints.filter(c => c.userId === 2);  // Using a hardcoded userId for sample user
+            const userComplaints = allComplaints.filter(c => c.userId === currentUser.id);  // Use the logged-in user's id
             
             // Update statistics
             document.getElementById('totalComplaints').textContent = userComplaints.length;

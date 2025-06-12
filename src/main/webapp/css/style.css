@@ -329,6 +329,41 @@ textarea {
     height: 120px;
 }
 
+/* Motivational Section Styles */
+.motivational-section {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background-color: var(--light-gray);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    animation: fadeIn 1s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.motivational-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--border-radius);
+    margin-bottom: 15px;
+}
+
+.motivational-quote {
+    font-size: 20px;
+    font-style: italic;
+    color: var(--secondary-color);
+    margin-bottom: 10px;
+}
+
+.city-quote {
+    font-size: 16px;
+    color: var(--primary-color);
+}
+
 .feature-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -415,4 +450,4 @@ textarea {
         overflow-x: auto;
         display: block;
     }
-} 
+}

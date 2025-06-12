@@ -15,10 +15,10 @@ app.use(express.static(path.join(__dirname, 'src/main/webapp')));
 
 // MySQL Connection
 const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',      // Replace with your MySQL username
-  password: 'root',      // Replace with your MySQL password
-  database: 'waste_management'
+  host: process.env.MYSQL_HOST || 'localhost',
+  user: process.env.MYSQL_USER || 'root',
+  password: process.env.MYSQL_PASSWORD || 'root',
+  database: process.env.MYSQL_DATABASE || 'waste_management'
 });
 
 // Connect to MySQL
@@ -34,32 +34,25 @@ db.connect(err => {
 app.post('/api/register', (req, res) => {
   const { username, password, name, address, phoneNumber, email } = req.body;
   
-  console.log('Registration attempt:', { username, name, address, phoneNumber, email });
+  // Log only non-sensitive information
+  console.log('New registration attempt for username:', username);
   
-  // Split name into first_name and last_name (simple split by first space)
-  const nameParts = name.split(' ');
-  const firstName = nameParts[0];
-  const lastName = nameParts.slice(1).join(' ') || '';
-  
-  // Insert user into database
+  // Insert user into database with correct column names
   const user = {
-    first_name: firstName,
-    last_name: lastName,
     username: username,
-    email: email,
-    phone: phoneNumber,
-    address: address,
     password: password,
+    name: name,
+    address: address,
+    phone_number: phoneNumber,
+    email: email,
     role: 'CITIZEN'
   };
-  
-  console.log('User data to insert:', user);
   
   const query = 'INSERT INTO users SET ?';
   
   db.query(query, user, (err, result) => {
     if (err) {
-      console.error('Error registering user:', err);
+      console.error('Registration error:', err.code);
       let errorMessage = 'Registration failed';
       
       // Provide more specific error messages
@@ -69,17 +62,14 @@ app.post('/api/register', (req, res) => {
       
       return res.status(500).json({ 
         success: false, 
-        message: errorMessage,
-        error: err.message,
-        code: err.code
+        message: errorMessage
       });
     }
     
-    console.log('User registered:', result.insertId);
+    console.log('User registered successfully with ID:', result.insertId);
     res.status(201).json({ 
       success: true, 
-      message: 'Registration successful!',
-      userId: result.insertId
+      message: 'Registration successful!'
     });
   });
 });
@@ -88,24 +78,23 @@ app.post('/api/register', (req, res) => {
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
   
-  console.log('Login attempt:', username, password);
+  // Log only username, not password
+  console.log('Login attempt for username:', username);
   
   // Query to find user
   const query = 'SELECT * FROM users WHERE username = ? AND password = ?';
   
   db.query(query, [username, password], (err, results) => {
     if (err) {
-      console.error('Login error:', err);
+      console.error('Login error:', err.code);
       return res.status(500).json({ 
         success: false, 
-        message: 'Login failed', 
-        error: err.message 
+        message: 'Login failed'
       });
     }
     
-    console.log('Login query results:', results);
-    
     if (results.length === 0) {
+      console.log('Failed login attempt for username:', username);
       return res.status(401).json({ 
         success: false, 
         message: 'Invalid username or password' 
@@ -117,6 +106,7 @@ app.post('/api/login', (req, res) => {
     // Don't send password to client
     delete user.password;
     
+    console.log('Successful login for username:', username);
     res.json({ 
       success: true, 
       message: 'Login successful', 
