@@ -14,7 +14,10 @@ pipeline {
                 checkout scm
             }
         }
-        stage('Install Dependencies') {
+         stage('Install Dependencies') {
+            agent {
+                docker { image 'node:20-alpine' }
+            }
             steps {
                 sh 'npm install'
             }
