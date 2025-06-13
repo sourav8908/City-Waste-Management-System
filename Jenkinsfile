@@ -37,15 +37,15 @@ pipeline {
         }
         stage('Deploy to AWS EC2') {
             steps {
-                withCredentials([sshUserPrivateKey(credentialsId: 'ec2-key', keyFileVariable: 'EC2_KEY')]) {
+               withCredentials([sshUserPrivateKey(credentialsId: 'ec2-key', keyFileVariable: 'EC2_KEY')]) {
                     sh '''
                     ssh -o StrictHostKeyChecking=no -i $EC2_KEY ubuntu@13.127.235.233 "
                         docker pull subrat8908/waste-management:latest &&
                         docker stop waste-management || true &&
                         docker rm waste-management || true &&
                         docker run -d --name waste-management -p 80:3000 \
-                            -e DB_URL=$DB_URL -e DB_USER=$DB_USER -e DB_PASSWORD=$DB_PASSWORD \
-                            subrat8908/waste-management:latest
+                        -e DB_URL=$DB_URL -e DB_USER=$DB_USER -e DB_PASSWORD=$DB_PASSWORD \
+                        subrat8908/waste-management:latest
                     "
                     '''
                 }
