@@ -23,4 +23,4 @@ RUN chmod +x /wait-for-it.sh
 EXPOSE 3000
 
 # Start the server, waiting for db:3306 to be ready
-CMD ["/wait-for-it.sh", "db", "3306", "node", "server.js"] 
+CMD ["node", "server.js"] 
