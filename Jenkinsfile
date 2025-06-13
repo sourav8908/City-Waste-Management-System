@@ -5,7 +5,7 @@ pipeline {
         DB_URL = credentials('DB_URL')           // Jenkins credential ID for DB URL
         DB_USER = credentials('DB_USER')         // Jenkins credential ID for DB user
         DB_PASSWORD = credentials('DB_PASSWORD') // Jenkins credential ID for DB password
-        DOCKER_IMAGE = 'yourdockerhubusername/waste-management:latest' // Change to your Docker Hub image
+        DOCKER_IMAGE = 'subrat8908/waste-management:latest' // Change to your Docker Hub image
     }
 
     stages {
@@ -30,7 +30,7 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 withCredentials([string(credentialsId: 'dockerhub-pwd', variable: 'dockerhubpwd')]) {
-                    sh 'docker login -u yourdockerhubusername -p ${dockerhubpwd}'
+                    sh 'docker login -u subrat8908 -p ${dockerhubpwd}'
                     sh "docker push $DOCKER_IMAGE"
                 }
             }
