@@ -1,133 +1,221 @@
 # City Waste Management System
 
-A comprehensive web application for managing city waste complaints, enabling citizens to report waste management issues and administrators to efficiently track and resolve them.
+A full-stack Node.js and MySQL application for managing city waste complaints, with CI/CD using Jenkins and deployment to AWS EC2.
+
+---
+
+## Table of Contents
+
+1. [Project Overview](#project-overview)
+2. [Features](#features)
+3. [Local Development Setup](#local-development-setup)
+4. [Docker Setup](#docker-setup)
+5. [Jenkins CI/CD Pipeline](#jenkins-cicd-pipeline)
+6. [AWS EC2 Deployment](#aws-ec2-deployment)
+7. [Project Structure](#project-structure)
+8. [Module-by-Module Explanation](#module-by-module-explanation)
+9. [Troubleshooting](#troubleshooting)
+10. [Credits](#credits)
+
+---
+
+## Project Overview
+
+This project is a web-based City Waste Management System. Citizens can register, log in, and submit complaints about waste management issues. Admins can view and manage all complaints.
+
+---
 
 ## Features
 
-### User Features
-- **User Registration**: Citizens can register with their details
-- **User Login/Logout**: Secure authentication system
-- **Raise Complaints**: Submit detailed complaints with location information
-- **Photo Evidence**: Upload photos of waste management issues
-- **Track Status**: View status updates of submitted complaints
-- **User Dashboard**: Overview of all complaints submitted by the user
+- User registration and login
+- Complaint submission and tracking
+- Admin dashboard for complaint management
+- RESTful API (Node.js + Express)
+- MySQL database
+- Frontend: HTML/CSS/JS
+- Dockerized for easy deployment
+- CI/CD with Jenkins
+- Deployment to AWS EC2
 
-### Admin Features
-- **Admin Login/Logout**: Secure administrative access
-- **Complaint Management**: View, update status, and delete complaints
-- **Filtering & Sorting**: Filter complaints by status and type
-- **Dashboard & Statistics**: View complaint metrics and trends
-- **Photo Viewing**: Examine photo evidence submitted by users
+---
 
-## Project Versions
+## Local Development Setup
 
-This project comes in two versions:
+### 1. **Clone the Repository**
+```sh
+git clone https://github.com/sourav8908/City-Waste-Management-System.git
+cd City-Waste-Management-System/WasteManagementSystem
+```
 
-### 1. HTML/CSS/JavaScript (Client-Side Only)
-- Runs entirely in the browser with no server requirements
-- Uses localStorage for data persistence
-- Perfect for demos and quick testing
-- Just open `index.html` in a browser to run
+### 2. **Install Node.js Dependencies**
+```sh
+npm install
+```
 
-### 2. Node.js/MySQL (Full-Stack)
-- Complete server implementation using Node.js and Express
-- MySQL database for persistent data storage
-- API endpoints for all functionality
-- Requires server setup (see README_SERVER.md)
+### 3. **Set Up MySQL Database**
+- Install MySQL locally if not already installed.
+- Create the database and tables:
+  ```sh
+  mysql -u root -p < database.sql
+  ```
+- Update `server.js` if your MySQL credentials are different.
 
-## Technology Stack
+### 4. **Run the Application**
+```sh
+npm start
+```
+- Access the app at: [http://localhost:3000](http://localhost:3000)
 
-### Client-Side Version
-- **Frontend**: HTML5, CSS3, JavaScript (ES6+)
-- **Storage**: Browser's localStorage
-- **Photo Storage**: Base64 encoding in localStorage
+---
 
-### Server Version
-- **Frontend**: HTML5, CSS3, JavaScript (ES6+)
-- **Backend**: Node.js, Express
-- **Database**: MySQL
-- **API**: RESTful API endpoints
+## Docker Setup
 
-## Getting Started
+### 1. **Build and Run with Docker Compose (Recommended)**
+```sh
+docker-compose up --build
+```
+- App: [http://localhost:3000](http://localhost:3000)
+- MySQL: localhost:3307
 
-### Running the HTML Version
-1. Clone this repository
-2. Navigate to the WasteManagementSystem directory
-3. Open `src/main/webapp/index.html` in any modern browser
-4. No server setup required!
+### 2. **Stop Containers**
+```sh
+docker-compose down
+```
 
-### Running the Node.js/MySQL Version
-1. See `README_SERVER.md` for complete setup instructions
-2. Requires Node.js and MySQL installed
+---
 
-## Default Login Credentials
+## Jenkins CI/CD Pipeline
 
-### HTML Version
-- **Admin**: 
-  - Username: admin
-  - Password: admin123
-- **Sample User**: 
-  - Username: user1
-  - Password: user123
+### 1. **Jenkins Setup**
+- Install Jenkins (locally or on a server)
+- Install required plugins: Docker Pipeline, Git, Credentials Binding
 
-### MySQL Version
-- **Admin**: 
-  - Username: admin
-  - Password: admin123
-- **Sample User**: 
-  - Username: citizen1
-  - Password: password123
+### 2. **Add Credentials**
+- Docker Hub credentials (for pushing images)
+- AWS EC2 SSH key (for deployment)
+- MySQL credentials (if needed)
+
+### 3. **Pipeline Stages**
+- **Checkout:** Pull code from GitHub
+- **Install Dependencies:** `npm install` (inside Node.js Docker container)
+- **Build Docker Image:** `docker build -t <image> .`
+- **Push Docker Image:** `docker push <image>`
+- **Deploy to EC2:** SSH into EC2 and run Docker commands
+
+### 4. **Trigger Builds**
+- Use Poll SCM or GitHub webhook
+
+---
+
+## AWS EC2 Deployment
+
+### 1. **Launch EC2 Instance**
+- Use Ubuntu 20.04/22.04/24.04 (Free Tier eligible)
+- Open ports 22 (SSH) and 3000 (app) in the security group
+
+### 2. **SSH into EC2**
+```sh
+ssh -i /path/to/your-key.pem ubuntu@<your-ec2-public-ip>
+```
+
+### 3. **Install Docker on EC2**
+```sh
+sudo apt update
+sudo apt install -y docker.io
+sudo systemctl start docker
+sudo usermod -aG docker ubuntu
+exit
+# Reconnect:
+ssh -i /path/to/your-key.pem ubuntu@<your-ec2-public-ip>
+```
+
+### 4. **(First Time Only) Docker Login**
+```sh
+docker login
+```
+
+### 5. **Jenkins Deploy Stage**
+- Jenkins will SSH into EC2 and run:
+  ```sh
+  docker pull <your-dockerhub-username>/waste-management:latest
+  docker stop waste-management || true
+  docker rm waste-management || true
+  docker run -d --name waste-management -p 3000:3000 \
+    -e MYSQL_HOST=<mysql-host> \
+    -e MYSQL_USER=<mysql-user> \
+    -e MYSQL_PASSWORD=<mysql-password> \
+    -e MYSQL_DATABASE=waste_management \
+    <your-dockerhub-username>/waste-management:latest
+  ```
+
+### 6. **Access the App**
+- [http://<your-ec2-public-ip>:3000](http://<your-ec2-public-ip>:3000)
+
+---
 
 ## Project Structure
 
 ```
 WasteManagementSystem/
+├── server.js
+├── package.json
+├── Dockerfile
+├── docker-compose.yml
+├── database.sql
 ├── src/
-│   └── main/
-│       └── webapp/
-│           ├── admin/           # Admin dashboard pages
-│           ├── css/             # Stylesheets
-│           ├── user/            # User dashboard pages
-│           ├── index.html       # Landing page
-│           ├── login.html       # Login page
-│           └── register.html    # Registration page
-├── server.js                    # Node.js server file
-├── package.json                 # Node.js dependencies
-├── database.sql                 # SQL setup script
-├── README.md                    # This file
-└── README_SERVER.md             # Server setup instructions
+│   └── main/webapp/...
+├── Jenkinsfile
+└── ...
 ```
 
-## Key Features in Detail
+---
 
-### Location-Based Complaints
-Users can specify detailed location information including street, landmark, area, and pincode to help authorities locate the issue accurately.
+## Module-by-Module Explanation
 
-### Photo Evidence
-The system allows users to upload photographic evidence of waste management issues, which helps administrators better understand and prioritize complaints.
+### **1. Backend (Node.js/Express)**
+- Handles API routes for registration, login, complaints
+- Connects to MySQL using `mysql2`
+- Serves static frontend files
 
-### Status Tracking
-Complaints progress through three statuses:
-- **Pending**: Newly submitted complaints awaiting action
-- **In Progress**: Complaints currently being addressed
-- **Resolved**: Complaints that have been successfully resolved
+### **2. Frontend (HTML/CSS/JS)**
+- User and admin dashboards
+- Registration and login forms
+- Uses fetch API to communicate with backend
 
-### User Verification
-Contact information is collected for verification purposes, allowing municipal staff to contact citizens if additional information is needed.
+### **3. Database (MySQL)**
+- `users` table: stores user info
+- `complaints` table: stores complaints
 
-## Development
+### **4. Docker**
+- `Dockerfile`: Defines how to build the app image
+- `docker-compose.yml`: Orchestrates app and MySQL for local dev
 
-This project is designed with a simple architecture for easy extension:
+### **5. Jenkins Pipeline**
+- Automates build, test, Docker image push, and deployment to EC2
 
-- **CSS Variables**: Easy theme customization
-- **Modular JavaScript**: Clear separation of concerns
-- **Responsive Design**: Works on mobile and desktop devices
+### **6. AWS EC2**
+- Hosts the production Docker container
+- Exposes app to the internet
 
-## License
+---
 
-This project is released under the MIT License. See the LICENSE file for details.
+## Troubleshooting
 
-## Contributors
+- **App not accessible on EC2:**  
+  - Check security group rules (port 3000 open)
+  - Check if Docker container is running: `docker ps`
+  - Check logs: `docker logs waste-management`
+  - Ensure `server.js` uses `0.0.0.0` in `app.listen`
 
-- Original implementation: [Your Name]
-- Design & Enhancement: Claude AI Assistant 
+- **Jenkins build fails:**  
+  - Check credentials and environment variables
+  - Check Docker and Node.js installation on Jenkins agent
+
+- **Database connection issues:**  
+  - Ensure correct MySQL host, user, password, and database name
+
+---
+
+## Credits
+
+- Project by Sourav Mohanty
